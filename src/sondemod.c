@@ -5,7 +5,9 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-
+#define _GNU_SOURCE 1
+#include <fenv.h>
+#include <stdio.h>
 
 #define X2C_int32
 #define X2C_index32
@@ -42,7 +44,9 @@
 #ifndef aprspos_H_
 #include "aprspos.h"
 #endif
-
+#ifndef sondedb_H_
+#include "sondedb.h"
+#endif
 /* decode RS92, RS41, SRS-C34, DFM06, M10 Radiosonde by OE5DXL */
 #define sondemod_CONTEXTLIFE 3600
 /* seconds till forget context after last heared */
@@ -537,7 +541,7 @@ static void Parms(void)
          }
          else {
             if (h[1U]=='h') {
-               osi_WrStr("sondemod 1.34", 14ul);
+               osi_WrStr("sondemod 1.34 - df7pn", 22ul);
                osi_WrStrLn(" multichannel decoder RS92, RS41, SRS-C34/50, DFM\
 , M10 Radiosondes", 67ul);
                osi_WrStrLn(" -A <meter>     at lower altitude use -B beacon t\
@@ -563,6 +567,10 @@ nde not more, 0=off (needs -P) (-G 15)", 88ul);
                osi_WrStrLn(" -h             help", 21ul);
                osi_WrStrLn(" -I <mycall>    Sender of Object Callsign -I OE0A\
 AA if not sent by \'sondeudp\'", 78ul);
+               osi_WrStrLn(" -ms <server>   MySQL server", 29ul );
+               osi_WrStrLn(" -mu <user>     MySQL user", 27ul);
+               osi_WrStrLn(" -mp <pass>     MySQL password", 31ul);
+               osi_WrStrLn(" -md <db>       MySQL database", 31ul);
                osi_WrStrLn(" -N <meter>     my altitude over NN for Distance/\
 Elevation to sonde output", 75ul);
                osi_WrStrLn(" -o <UDPport>   receive demodulated data via UDP \
@@ -634,6 +642,37 @@ USE, not exact)", 65ul);
             }
             err = 1;
          }
+      } else       
+      if ((h[0U]=='-' && h[1U] && h[2U]) && h[3U]==0) {
+         if (h[1U]=='m') {
+            if(h[2U]=='s')
+            {
+               osi_NextArg(sondedb_mysql_server, 100);
+               if(sondedb_mysql_server[0]<' ') Error("-ms <server>", 13);
+               // printf("MySQL-Server: '%s'\n", sondedb_mysql_server);
+            }
+            else if(h[2U]=='u')
+            {
+               osi_NextArg(sondedb_mysql_user, 100);
+               if(sondedb_mysql_user[0]<' ') Error("-ms <user>", 11);
+               //printf("MySQL-User: %s\n", sondedb_mysql_user);
+            }
+            else if(h[2U]=='p')
+            {
+               osi_NextArg(sondedb_mysql_pass, 100);
+               if(sondedb_mysql_pass[0]<' ') Error("-mp <pass>", 11);
+               //printf("MySQL-Pass: %s\n", sondedb_mysql_pass);
+            }
+            else if(h[2U]=='d')
+            {
+               osi_NextArg(sondedb_mysql_db, 100);
+               if(sondedb_mysql_db[0]<' ') Error("-md <db>", 8);
+               //printf("MySQL-DB: %s\n", sondedb_mysql_db);
+            }
+            else
+                 Error("-m<s,u,p,d>", 12);
+         } 
+		 else err = 1;
       }
       else err = 1;
       if (err) break;
@@ -645,6 +684,8 @@ USE, not exact)", 65ul);
       X2C_ABORT();
    }
    if (!lowbeacon) sondeaprs_lowaltbeacontime = sondeaprs_beacontime;
+   if (strlen(sondedb_mysql_pass)==0 && getenv("SM_MYSQL_PASS"))
+     strncpy(sondedb_mysql_pass, getenv("SM_MYSQL_PASS"), 99);
    if ((sondeaprs_maxsenddistance>0UL && sondeaprs_mypos.lat==0.0f)
                 && sondeaprs_mypos.long0==0.0f) {
       osi_WrStrLn("Warning: -G needs Your -P <Position>", 37ul);

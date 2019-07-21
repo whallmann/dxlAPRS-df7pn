@@ -29,7 +29,9 @@
 #ifndef aprspos_H_
 #include "aprspos.h"
 #endif
-
+#ifndef sondedb_H_
+#include "sondedb.h"
+#endif
 
 
 char sondeaprs_via[100];
@@ -385,6 +387,52 @@ v,dist,azimuth,elevation,ser\012",1000u);
    label:;
    X2C_PFREE(objname);
 } /* end wrcsv() */
+
+
+
+static void wrSQL(uint32_t sattime, const char typstr[],
+                uint32_t typstr_len, char objname[],
+                uint32_t objname_len, double lat, double long0,
+                 double alt, double speed, double dir,
+                double clb, double egmalt, double og,
+                double mhz, uint32_t goodsats, uint32_t burstKill,
+                uint32_t uptime, double hp, double hyg,
+                double temp, double ozon, double otemp,
+                double pumpmA, double pumpv,
+                const struct sondeaprs_SDRBLOCK sdr, double dist,
+                double azi, double ele, const char fullid[],
+                uint32_t fullid_len,
+                double hrms, double vrms,
+                char usercall[],
+                uint32_t usercall_len,
+                uint32_t calperc,
+                uint32_t sd_log_freq
+                )
+{
+   int32_t fd;
+   char h[1000];
+   char s[1000];
+   X2C_PCOPY((void **)&objname,objname_len);
+   /* -- kein SQL Server - keine Aktion hier --- */
+   if(sondedb_mysql_server[0]<' ') { goto label; }
+   	
+   s[0] = 0;
+   //sondeaprs_type = type_send_pos;
+   /* DB Save fuer DL0HT -> diese Variablen werden benoetigt */
+   //strncpy(s,typstr,typstr_len);
+   senddata_db(type_send_pos, lat, long0, alt, speed, dir, clb, hp, hyg, temp, ozon,
+                otemp, pumpmA, pumpv, 0.0, mhz, hrms, vrms, sattime, uptime,
+                objname, objname_len, egmalt, goodsats, usercall,
+                usercall_len, calperc, sd_log_freq, typstr, 0UL,
+                burstKill, "", 1ul, "", "", "", "",
+                "", 0.0, 0.0, "", (unsigned char)0, (unsigned char)0, "");
+   /* */
+
+   
+   label:;
+   X2C_PFREE(objname);
+} /* end wrSQL() */
+
 
 
 static double egm96corr(double lat, double long0,
@@ -1447,6 +1495,26 @@ extern void sondeaprs_senddata(double lat, double long0,
                 uptime, hp, hyg, temp, ozon, otemp, pumpmA, pumpv, sdr,
                 mydist, myazi, myele, fullid, fullid_len);
    }
+   /* hier: wenn SQL Server angegeben dann funktion wrSQL aufrufen */
+   if (sondedb_mysql_server[0UL]) {
+   	
+   /* DB Save fuer DL0HT -> diese Variablen werden benoetigt
+   senddata_db(sondeaprs_type, lat, long0, alt, speed, dir, clb, hp, hyg, temp, ozon,
+                otemp, pumpmA, pumpv, dewp, mhz, hrms, vrms, sattime, uptime,
+                objname, objname_len, almanachage, goodsats, usercall,
+                usercall_len, calperc, sd_log_freq, sd_type, killTimer,
+                burstKill, sd_raw, sd_raw_len, hwType, hwRev, hwSN, presSN,
+                fwVersion, voltage, tempInt, flightState, heating, power, error);
+   */
+   	
+      wrSQL(sattime, typstr, typstr_len, objname, objname_len, lat, long0,
+                alt, speed, dir, clb, egmalt, og, mhz, goodsats, burstKill,
+                uptime, hp, hyg, temp, ozon, otemp, pumpmA, pumpv, sdr,
+                mydist, myazi, myele, fullid, fullid_len, hrms, vrms,  
+                usercall, usercall_len, calperc, sdr.freq      );
+   }
+
+   
    if (aprsstr_Length(usercall, usercall_len)<3UL) {
       osi_WrStrLn("no tx without <mycall>", 23ul);
       goto label;
@@ -1675,6 +1743,7 @@ extern void sondeaprs_BEGIN(void)
    libsrtm_BEGIN();
    osi_BEGIN();
    aprsstr_BEGIN();
+   sondedb_BEGIN();
    contexts = 0;
    sondeaprs_udpsock = -1L;
    sondeaprs_commentfn[0UL] = 0;

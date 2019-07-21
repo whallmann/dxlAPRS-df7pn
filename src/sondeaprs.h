@@ -30,7 +30,7 @@ struct sondeaprs_SDRBLOCK {
    char valid;
 };
 
-#define sondeaprs_VERSION "sondemod 1.34"
+#define sondeaprs_VERSION "sondemod 1.34 - df7pn"
 
 #define sondeaprs_minusG "G"
 
@@ -59,6 +59,7 @@ extern char sondeaprs_objname[100];
 extern char sondeaprs_commentfn[1025];
 
 extern char sondeaprs_csvfilename[1025];
+extern char sondeaprs_SQL[2];
 
 extern char sondeaprs_sym[2];
 
