@@ -47,6 +47,7 @@
 #ifndef sondedb_H_
 #include "sondedb.h"
 #endif
+
 /* decode RS92, RS41, SRS-C34, DFM06, M10 Radiosonde by OE5DXL */
 #define sondemod_CONTEXTLIFE 3600
 /* seconds till forget context after last heared */
@@ -403,6 +404,10 @@ static void Parms(void)
    almrequest = 14400UL;
    sondeaprs_verb = 0;
    sondeaprs_verb2 = 0;
+   sondedb_mysql_user[0] = 0;
+   sondedb_mysql_pass[0] = 0;
+   sondedb_mysql_db[0] = 0;
+   sondedb_mysql_server[0] = 0;
    sendquick = 1UL;
    sondeaprs_myalt = (-5.E+5f);
    sondeaprs_mypos.lat = 0.0f;

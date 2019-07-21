@@ -38,6 +38,9 @@ struct sondeaprs_SDRBLOCK {
 
 #define sondeaprs_minusP "P"
 
+enum send_type { type_send_pos, type_send_raw_only, type_send_duplicate };
+typedef enum send_type sondeaprs_type; 
+
 extern void sondeaprs_senddata(double, double, double,
                 double, double, double, double,
                 double, double, double, double,

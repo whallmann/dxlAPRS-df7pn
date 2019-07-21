@@ -7,6 +7,7 @@
  */
 
 
+#include <stdio.h>
 #define X2C_int32
 #define X2C_index32
 #ifndef X2C_H_
