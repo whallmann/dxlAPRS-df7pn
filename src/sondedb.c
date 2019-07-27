@@ -306,7 +306,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
                 /*if(type == type_send_raw_only)
                     sprintf(buffer, "SELECT getLastId(%s, NOW())", sd_name);
                 else*/
-                if(uptime > 0)
+                if(sd_uptime > 0)
                     sprintf(buffer, "SELECT getAlreadyStoredUptime('%s', %s, NOW())", sd_name, sd_uptime);
                 else
                   //sprintf(buffer, "SELECT getAlreadyStored(0x%s, NOW())", rawData);
