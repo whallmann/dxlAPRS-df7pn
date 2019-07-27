@@ -309,7 +309,9 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
                 if(uptime > 0)
                     sprintf(buffer, "SELECT getAlreadyStoredUptime('%s', %s, NOW())", sd_name, sd_uptime);
                 else
-                    sprintf(buffer, "SELECT getAlreadyStored(0x%s, NOW())", rawData);
+                  //sprintf(buffer, "SELECT getAlreadyStored(0x%s, NOW())", rawData);
+			      // sd_name = string
+                    sprintf(buffer, "SELECT getAlreadyStoredByPos('%s', %.6f, %.6f, %.2f, NOW())", sd_name, sd_lat, sd_lon, sd_alt );
                 
                 // Look for id
                 if(sondeaprs_verb)

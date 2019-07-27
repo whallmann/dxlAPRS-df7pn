@@ -393,7 +393,7 @@ v,dist,azimuth,elevation,ser\012",1000u);
 static void wrSQL(uint32_t sattime, const char typstr[],
                 uint32_t typstr_len, char objname[],
                 uint32_t objname_len, double lat, double long0,
-                 double alt, double speed, double dir,
+                double alt, double speed, double dir,
                 double clb, double egmalt, double og,
                 double mhz, uint32_t goodsats, uint32_t burstKill,
                 uint32_t uptime, double hp, double hyg,
@@ -418,8 +418,17 @@ static void wrSQL(uint32_t sattime, const char typstr[],
    	
    s[0] = 0;
    //sondeaprs_type = type_send_pos;
-   /* DB Save fuer DL0HT -> diese Variablen werden benoetigt */
+   /* DB Save fuer DL0HT -> diese Variablen werden benoetigt
+   senddata_db(sondeaprs_type, lat, long0, alt, speed, dir, clb, hp, hyg, temp, ozon,
+                otemp, pumpmA, pumpv, dewp, mhz, hrms, vrms, sattime, uptime,
+                objname, objname_len, almanachage, goodsats, usercall,
+                usercall_len, calperc, sd_log_freq, sd_type, killTimer,
+                burstKill, sd_raw, sd_raw_len, hwType, hwRev, hwSN, presSN,
+                fwVersion, voltage, tempInt, flightState, heating, power, error); 
+   */
    //strncpy(s,typstr,typstr_len);
+   sd_log_freq = sd_log_freq * 10UL;	
+
    senddata_db(type_send_pos, lat, long0, alt, speed, dir, clb, hp, hyg, temp, ozon,
                 otemp, pumpmA, pumpv, 0.0, mhz, hrms, vrms, sattime, uptime,
                 objname, objname_len, egmalt, goodsats, usercall,
@@ -1511,7 +1520,7 @@ extern void sondeaprs_senddata(double lat, double long0,
                 alt, speed, dir, clb, egmalt, og, mhz, goodsats, burstKill,
                 uptime, hp, hyg, temp, ozon, otemp, pumpmA, pumpv, sdr,
                 mydist, myazi, myele, fullid, fullid_len, hrms, vrms,  
-                usercall, usercall_len, calperc, sdr.freq      );
+                usercall, usercall_len, calperc, sdr.freq     );
    }
 
    
