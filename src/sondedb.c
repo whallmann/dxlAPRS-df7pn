@@ -351,6 +351,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
                 // Do actual insert
                 if(strlen(pre_id)==0 /* && type != type_send_raw_only*/)
                 {
+					if( sd_log_freq < 100000000) sd_log_freq = sd_log_freq * 10; 
                     sprintf(buffer, "%s (NOW(), '%s', %d, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %d, %s, %d, %s, 0x%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                         INSERT, sd_name, sd_log_freq, sd_type, sd_lat, sd_lon, sd_alt, sd_speed, sd_dir, sd_clb, sd_press, sd_hyg, sd_temp,
                         sd_ozone_val, sd_ozone_temp, sd_ozone_pump_curr, sd_ozone_pump_volt, sd_dewp, sd_freq, sd_hrms, sd_vrms,
