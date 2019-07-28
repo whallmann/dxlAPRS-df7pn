@@ -129,13 +129,18 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
         char* presSN, char* fwVersion, double voltage, double tempInt, 
         char* flightState, unsigned char heating, unsigned char power, char* error)
 {
+	
+	if(sondeaprs_verb)
+                {
+                    printf("Entry: senddata_db\n");
+                }
     // TODO: Store RAW data for all frames!
     if(type==type_send_raw_only)
         return;
     
     // DFM workaround
-    if(lat < 0.01 || long0 < 0.01 || lat > 1000 || long0 > 1000)
-        return;
+    //if(lat < 0.01 || long0 < 0.01 || lat > 1000 || long0 > 1000)
+    //    return;
     
     const char* INSERT = "INSERT INTO sondedata (sd_log_time, sd_name, sd_log_freq, sd_type, sd_lat, sd_long, sd_alt, sd_speed, sd_dir, sd_clb, "
             "sd_press, sd_hyg, sd_temp, sd_ozone_val, sd_ozone_temp, sd_ozone_pump_curr, sd_ozone_pump_volt, sd_dewp, sd_freq, "
