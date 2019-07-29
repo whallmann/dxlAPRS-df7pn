@@ -1466,6 +1466,11 @@ extern void sondeaprs_senddata(double lat, double long0,
          osi_WrStrLn("m egm96 correction?", 20ul);
       }
    }
+	if(sondeaprs_verb)
+	{
+		printf("¦<1> sondeaprs_senddata\n");
+	}
+   
    /*- azimuth elevation distance */
    myazi = (-2.E+4);
    myele = (-2.E+4);
@@ -1515,6 +1520,10 @@ extern void sondeaprs_senddata(double lat, double long0,
                 burstKill, sd_raw, sd_raw_len, hwType, hwRev, hwSN, presSN,
                 fwVersion, voltage, tempInt, flightState, heating, power, error);
    */
+	if(sondeaprs_verb)
+	{
+		printf("¦<3> wrSQL\n");
+	}
    	
       wrSQL(sattime, typstr, typstr_len, objname, objname_len, lat, long0,
                 alt, speed, dir, clb, egmalt, og, mhz, goodsats, burstKill,
@@ -1739,6 +1748,11 @@ extern void sondeaprs_senddata(double lat, double long0,
       }
    }
    label:;
+	if(sondeaprs_verb)
+	{
+		printf("¦<2> sondeaprs_senddata\n");
+	}
+   
    X2C_PFREE(objname);
 } /* end senddata() */
 

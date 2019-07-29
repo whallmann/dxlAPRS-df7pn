@@ -375,7 +375,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
                 // Display query
                 if(sondeaprs_verb)
                 {
-                    printf("■> Debug: sd_log_freq with 'ul' format \n");
+                    //printf("■<1> sd_log_freq with 'ul' format \n");
                     printf(buffer);
                     printf("\n");
                 }
