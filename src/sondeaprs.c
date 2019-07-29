@@ -6,7 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-
+#include <stdio.h>
+#include <stdlib.h>
 #define X2C_int32
 #define X2C_index32
 #ifndef sondeaprs_H_
@@ -1468,7 +1469,7 @@ extern void sondeaprs_senddata(double lat, double long0,
    }
 	if(sondeaprs_verb)
 	{
-		printf("¦<1> sondeaprs_senddata\n");
+		printf("#<1> sondeaprs_senddata\n");
 	}
    
    /*- azimuth elevation distance */
@@ -1522,7 +1523,7 @@ extern void sondeaprs_senddata(double lat, double long0,
    */
 	if(sondeaprs_verb)
 	{
-		printf("¦<3> wrSQL\n");
+		printf("#<3> wrSQL\n");
 	}
    	
       wrSQL(sattime, typstr, typstr_len, objname, objname_len, lat, long0,
@@ -1750,7 +1751,7 @@ extern void sondeaprs_senddata(double lat, double long0,
    label:;
 	if(sondeaprs_verb)
 	{
-		printf("¦<2> sondeaprs_senddata\n");
+		printf("#<2> sondeaprs_senddata\n");
 	}
    
    X2C_PFREE(objname);
