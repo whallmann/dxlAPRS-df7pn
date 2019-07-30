@@ -1463,7 +1463,7 @@ static void getcall(const char b[], uint32_t b_len, char call[],
 
 static uint16_t sondemod_POLYNOM = 0x1021U;
 
-
+/* RS92 */
 static void decodeframe(uint8_t m, uint32_t ip, uint32_t fromport)
 {
    uint32_t gpstime;
@@ -1626,11 +1626,11 @@ static void decodeframe(uint8_t m, uint32_t ip, uint32_t fromport)
             }
             else if (frameno<contextr9.framenum && sondeaprs_verb) {
                osi_WrStrLn("", 1ul);
-               osi_WrStr("got out of order frame number ", 31ul);
+               osi_WrStr("#<4>got out of order frame number ", 31ul);
                osic_WrINT32(frameno, 1UL);
                osi_WrStr(" expecting ", 12ul);
                osic_WrINT32(contextr9.framenum, 1UL);
-               osi_WrStr(" ", 2ul);
+               osi_WrStr(" \n", 2ul);
                crdone = 0;
             }
          }
@@ -3116,15 +3116,18 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
             calok = 1;
             pc->framenum = frameno;
             pc->tused = systime;
-         }
+         } 
          else if (pc->framenum==frameno && !pc->framesent) calok = 1;
-         else if (frameno<pc->framenum && sondeaprs_verb) {
-            osi_WrStrLn("", 1ul);
-            osi_WrStr("got out of order frame number ", 31ul);
-            osic_WrINT32(frameno, 1UL);
-            osi_WrStr(" expecting ", 12ul);
-            osic_WrINT32(pc->framenum, 1UL);
-            osi_WrStr(" ", 2ul);
+         else if (frameno<pc->framenum  {
+            calok = 1; // trotzdem ok, damit in sendaprs das beim sendDB für den User nachgetragben werden kann
+			if (sondeaprs_verb) {
+				osi_WrStrLn("", 1ul);
+				osi_WrStr("#<5>got out of order frame number ", 31ul);
+				osic_WrINT32(frameno, 1UL);
+				osi_WrStr(" expecting ", 12ul);
+				osic_WrINT32(pc->framenum, 1UL);
+				osi_WrStr(" \n", 2ul);
+			 }
          }
          if (rxb[p+23UL]==0) {
             pc->mhz0 = (float)(getcard16(rxb, rxb_len,
