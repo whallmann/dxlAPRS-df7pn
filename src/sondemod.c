@@ -3118,7 +3118,7 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
             pc->tused = systime;
          } 
          else if (pc->framenum==frameno && !pc->framesent) calok = 1;
-         else if (frameno<pc->framenum  {
+         else if (frameno<pc->framenum)  {
             calok = 1; // trotzdem ok, damit in sendaprs das beim sendDB für den User nachgetragben werden kann
 			if (sondeaprs_verb) {
 				osi_WrStrLn("", 1ul);
