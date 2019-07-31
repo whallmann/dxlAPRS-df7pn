@@ -308,10 +308,8 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
                 char* pre_id = malloc(20);
                 pre_id[0] = 0;
                 
-                /*if(type == type_send_raw_only)
-                    sprintf(buffer, "SELECT getLastId(%s, NOW())", sd_name);
-                else*/
-                if(sd_uptime > 0)
+				/* uptime als unsigned long nutzen, sd_uptime ist ein string */
+                if(uptime > 0)
                     sprintf(buffer, "SELECT getAlreadyStoredUptime('%s', %s, NOW())", sd_name, sd_uptime);
                 else
                   //sprintf(buffer, "SELECT getAlreadyStored(0x%s, NOW())", rawData);
