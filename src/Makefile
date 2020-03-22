@@ -22,8 +22,10 @@
 #                               using srtm-datafiles
 # - panorama		makes png Image + csv-file from landscape with poi markers
 #                               using srtm-datafiles
-# - cmslogin	l2cat task for bidirectional TCP connect and password login in CMS server
-# - srtmtag	modify srtm1 or srtm3 file with tags eg. wood/water
+# - cmslogin   l2cat task for bidirectional TCP connect and password login in CMS server
+# - srtmtag    modify srtm1 or srtm3 file with tags eg. wood/water
+# - fmrepeater simple ctcss-squelch speach repeater audio processing + ptt + dtmf
+#              + ctcss generator, maybe combined with afskmodem for multimode relay
 # ---------------------- common section ---------------------------------------
 HOSTARCH := $(shell uname -m | \
 	sed -e s/i.86/x86/ \
@@ -66,8 +68,7 @@ CDEFS		= -Wall \
 else
 CDEFS		= -w
 endif
-SQLCFLAGS	= $(shell /usr/bin/mysql_config --cflags) 
-SQLLFLAGS	= $(shell /usr/bin/mysql_config --libs)
+
 ifeq ($(HOSTOS),Darwin)
 CFLAGS		= -I$(INCL) -c -O2 -fdata-sections -ffunction-sections -I/usr/X11/include -DMACOS
 LFLAGS		= -L/usr/X11/lib -lX11
@@ -97,7 +98,6 @@ XLIBS		= $(EXTLIB)libpng16/libpng.a \
 		  -L$(EXTLIB) -lXext -lX11
 CFLAGS		+= -march=armv6zk -mfpu=vfp -mfloat-abi=hard -mcpu=arm1176jzf-s
 CFLAGS		+= -Ilib_armv6/libpng16/ -I$(EXTLIB) -I.
-CFLAGS		+= $(SQLCFLAGS) 
 LFLAGS		+=
 # ---------------------- armv7hf (bur am335x pp) specific ---------------------
 else ifeq ($(PLATFORM), armv7hf)
@@ -108,7 +108,7 @@ XLIBS		= $(EXTLIB)libpng.a \
 		  $(EXTLIB)libjpeg.a \
 		  $(EXTLIB)libxcb.so $(EXTLIB)libXdmcp.so $(EXTLIB)libXau.so \
 		  -L$(EXTLIB) -lXext -lX11
-CFLAGS		+= -march=armv7-a -mfpu=neon -mfloat-abi=hard $(SQLCFLAGS) 
+CFLAGS		+= -march=armv7-a -mfpu=neon -mfloat-abi=hard
 CFLAGS		+= -I$(EXTLIB)
 LFLAGS		+=
 # -------------------------- x86_64 specific -----------------------------------
@@ -120,22 +120,17 @@ ifeq ($(PLATFORM), x86_32)
 	LFLAGS	+= -m32
 	TARGETS	+= $(OUT)aprsmap-x86_32
 else ifneq ($(HOSTOS),Darwin)
-# --- wichtig fuer Jan s SQL Zeugs
-CFLAGS  += $(SQLCFLAGS)
-# --------------------------------
 TARGETS		+= $(OUT)aprsmap-x86_64
 endif
 OUT		:= $(if $(OUT),$(OUT),../out-x86_64/)
 # -------------------------- x86_32 (default) specific ------------------------
 else ifeq ($(HOSTARCH), x86)
-CFLAGS		+= $(SQLCFLAGS) 
 OUT		:= $(if $(OUT),$(OUT),../out-x86_32/)
 TARGETS		+= $(OUT)aprsmap-x86_32
 XLIBS		= -lpng -ljpeg -lXext -lX11
 else
 OUT		:= $(if $(OUT),$(OUT),../out/)
 XLIBS		+= -lpng -ljpeg -lXext -lX11
-CFLAGS		+= $(SQLCFLAGS) 
 endif
 # ------------------ objects enumeration ------------------
 OBJ_COMMON = \
@@ -162,7 +157,6 @@ OBJ_SONDEMOD	= \
 	$(OUT)navigation.o \
 	$(OUT)rinex.o \
 	$(OUT)sem.o \
-	$(OUT)sondedb.o \
 	$(OUT)sondeaprs.o \
 	$(OUT)time_conversion.o \
 	$(OUT)yuma.o \
@@ -235,7 +229,12 @@ TARGETS += \
 	$(OUT)radiorange \
 	$(OUT)panorama \
 	$(OUT)cmslogin \
-	$(OUT)srtmtag
+	$(OUT)srtmtag \
+	$(OUT)fmrepeater
+
+OBJ_FMREPEATER = \
+	$(OUT)fmrepeater.o \
+	$(OUT)afskmodemptt.o
 
 ifneq ($(HOSTOS), Darwin)
 	TARGETS += $(OUT)l2cat
@@ -297,7 +296,7 @@ $(OUT)gps2digipos: $(OBJ_GPS2DIGIPOS) $(OBJ_COMMON)
 
 $(OUT)sondemod: $(OBJ_SONDEMOD) $(OBJ_COMMON)
 	@echo [ linking ] $@
-	@$(CC) $(LFLAGS) -o $(OUT)sondemod $(OBJ_COMMON) $(OBJ_SONDEMOD) -lm $(SQLLFLAGS)
+	@$(CC) $(LFLAGS) -o $(OUT)sondemod $(OBJ_COMMON) $(OBJ_SONDEMOD) -lm
 	@$(STRIP) $(OUT)sondemod $(STRIPFLAGS)
 
 $(OUT)sondeudp: $(OBJ_SONDEUDP) $(OBJ_COMMON)
@@ -391,6 +390,10 @@ $(OUT)cmslogin: $(OBJ_CMSLOGIN) $(OBJ_COMMON)
 $(OUT)srtmtag: $(OBJ_SRTMTAG) $(OBJ_COMMON)
 	$(CC) $(LFLAGS) -o $@ $(OBJ_COMMON) $(OBJ_SRTMTAG) \
 	$(XLIBS) -lm
+	$(STRIP) $@ $(STRIPFLAGS)
+
+$(OUT)fmrepeater: $(OBJ_FMREPEATER) $(OBJ_COMMON)
+	$(CC) $(LFLAGS) -o $@ $(OBJ_COMMON) $(OBJ_FMREPEATER) -lm
 	$(STRIP) $@ $(STRIPFLAGS)
 
 %:

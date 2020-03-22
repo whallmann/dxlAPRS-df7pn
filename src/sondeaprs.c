@@ -211,13 +211,12 @@ static void wrcsv(uint32_t sattime, const char typstr[],
                 uint32_t objname_len, double lat, double long0,
                  double alt, double speed, double dir,
                 double clb, double egmalt, double og,
-                double mhz, uint32_t goodsats, uint32_t burstKill,
-                uint32_t uptime, double hp, double hyg,
-                double temp, double ozon, double otemp,
-                double pumpmA, double pumpv,
-                const struct sondeaprs_SDRBLOCK sdr, double dist,
-                double azi, double ele, const char fullid[],
-                uint32_t fullid_len)
+                double mhz, uint32_t goodsats, uint32_t uptime,
+                double hp, double hyg, double temp,
+                double ozon, double otemp, double pumpmA,
+                double pumpv, const struct sondeaprs_SDRBLOCK sdr,
+                double dist, double azi, double ele,
+                const char fullid[], uint32_t fullid_len)
 {
    int32_t fd;
    char h[1000];
@@ -296,10 +295,7 @@ v,dist,azimuth,elevation,ser\012",1000u);
       aprsstr_Append(s, 1000ul, h, 1000ul);
    }
    aprsstr_Append(s, 1000ul, ",", 2ul);
-   if (burstKill>0UL) {
-      aprsstr_IntToStr((int32_t)(burstKill-1UL), 1UL, h, 1000ul);
-      aprsstr_Append(s, 1000ul, h, 1000ul);
-   }
+   /*IF burstKill>0 THEN IntToStr(burstKill-1, 1, h); Append(s, h) END;*/
    aprsstr_Append(s, 1000ul, ",", 2ul);
    if (uptime>0UL) {
       aprsstr_TimeToStr(uptime, h, 1000ul);
@@ -444,7 +440,6 @@ static void wrSQL(uint32_t sattime, const char typstr[],
 } /* end wrSQL() */
 
 
-
 static double egm96corr(double lat, double long0,
                 double alt)
 {
@@ -552,7 +547,7 @@ static void comment0(char buf[], uint32_t buf_len, uint32_t uptime,
             }
             else if (fb[bol+1L]=='v') {
                /* insert version */
-               aprsstr_Append(hb, 120ul, " sondemod 1.34", 15ul);
+               aprsstr_Append(hb, 120ul, " sondemod 1.36", 15ul);
             }
             else if (fb[bol+1L]=='s') {
                /* insert sat count */
@@ -636,6 +631,7 @@ static void comment0(char buf[], uint32_t buf_len, uint32_t uptime,
             bol += 2L;
          }
          aprsstr_Assign(buf, buf_len, hb, 120ul);
+         if (bol<eol && fb[bol]!=' ') aprsstr_Append(buf, buf_len, " ", 2ul);
          i = (int32_t)aprsstr_Length(buf, buf_len);
          while (bol<eol && i<(int32_t)(buf_len-1)) {
             buf[i] = fb[bol];
@@ -1423,19 +1419,35 @@ static void elevation(double * el, double * c,
 } /* end elevation() */
 
 
+static char typisser(const char fullid[], uint32_t fullid_len,
+                const char typstr[], uint32_t typstr_len)
+/* serial nr starts with type name */
+{
+   uint32_t i;
+   i = 0UL;
+   for (;;) {
+      if (fullid[i]==0 || fullid[i]!=typstr[i]) return 0;
+      ++i;
+      if (i>typstr_len-1 || typstr[i]==0) return 1;
+      if (i>fullid_len-1) return 0;
+   }
+   return 0;
+} /* end typisser() */
+
+
 extern void sondeaprs_senddata(double lat, double long0,
                 double alt, double speed, double dir,
-                double clb, double hp, double hyg,
+                double clb, double fakehp, double hyg,
                 double temp, double ozon, double otemp,
                 double pumpmA, double pumpv, double mhz,
                 double hrms, double vrms, uint32_t sattime,
                 uint32_t uptime, char objname[],
                 uint32_t objname_len, uint32_t almanachage,
                 uint32_t goodsats, char usercall[],
-                uint32_t usercall_len, uint32_t calperc,
-                uint32_t burstKill, char force, char typstr[],
-                uint32_t typstr_len, char fullid[],
-                uint32_t fullid_len, struct sondeaprs_SDRBLOCK sdr)
+                uint32_t usercall_len, uint32_t calperc, double hp,
+                 char force, char typstr[], uint32_t typstr_len,
+                 char fullid[], uint32_t fullid_len,
+                struct sondeaprs_SDRBLOCK sdr)
 {
    uint8_t e;
    pCONTEXT ct;
@@ -1506,9 +1518,9 @@ extern void sondeaprs_senddata(double lat, double long0,
    /*- azimuth elevation distance */
    if (sondeaprs_csvfilename[0UL]) {
       wrcsv(sattime, typstr, typstr_len, objname, objname_len, lat, long0,
-                alt, speed, dir, clb, egmalt, og, mhz, goodsats, burstKill,
-                uptime, hp, hyg, temp, ozon, otemp, pumpmA, pumpv, sdr,
-                mydist, myazi, myele, fullid, fullid_len);
+                alt, speed, dir, clb, egmalt, og, mhz, goodsats, uptime, hp,
+                hyg, temp, ozon, otemp, pumpmA, pumpv, sdr, mydist, myazi,
+                myele, fullid, fullid_len);
    }
    /* hier: wenn SQL Server angegeben dann funktion wrSQL aufrufen */
    if (sondedb_mysql_server[0UL]) {
@@ -1525,15 +1537,14 @@ extern void sondeaprs_senddata(double lat, double long0,
 	{
 		printf("#<3> wrSQL\n");
 	}
-   	
+   	/* ##HIER##  burstKill gibts nicht mehr */
       wrSQL(sattime, typstr, typstr_len, objname, objname_len, lat, long0,
-                alt, speed, dir, clb, egmalt, og, mhz, goodsats, burstKill,
+                alt, speed, dir, clb, egmalt, og, mhz, goodsats, 0,
                 uptime, hp, hyg, temp, ozon, otemp, pumpmA, pumpv, sdr,
                 mydist, myazi, myele, fullid, fullid_len, hrms, vrms,  
                 usercall, usercall_len, calperc, sdr.freq     );
    }
 
-   
    if (aprsstr_Length(usercall, usercall_len)<3UL) {
       osi_WrStrLn("no tx without <mycall>", 23ul);
       goto label;
@@ -1570,7 +1581,7 @@ extern void sondeaprs_senddata(double lat, double long0,
          /*    IF (hrms>MAXHRMS) OR (vrms>MAXVRMS) THEN INCL(chk, eRMS) END;
                 */
          if (sondeaprs_verb) {
-            osi_WrStrLn("", 1ul);
+            /*        WrStrLn("");  */
             show(anonym->dat[0U]);
             if (almanachage) {
                osi_WrStr(" AlmAge ", 9ul);
@@ -1629,6 +1640,12 @@ extern void sondeaprs_senddata(double lat, double long0,
                aprsstr_Append(s, 251ul, h, 251ul);
                aprsstr_Append(s, 251ul, "hPa", 4ul);
             }
+            else if (fakehp>=1.0) {
+               aprsstr_Append(s, 251ul, " fp=", 5ul);
+               aprsstr_FixToStr((float)fakehp, 2UL, h, 251ul);
+               aprsstr_Append(s, 251ul, h, 251ul);
+               aprsstr_Append(s, 251ul, "hPa", 4ul);
+            }
             if ((0x2U & chk)==0) {
                aprsstr_Append(s, 251ul, " t=", 4ul);
                aprsstr_FixToStr((float)anonym->dat[0U].temp, 2UL, h,
@@ -1684,9 +1701,20 @@ extern void sondeaprs_senddata(double lat, double long0,
                aprsstr_Append(s, 251ul, "MHz", 4ul);
                mhzfromsonde = 1; /* mhz sent so do not with %f */
             }
+            else if ((mhz<0.0 && sdr.valid) && sdr.freq) {
+               aprsstr_Append(s, 251ul, " ", 2ul);
+               aprsstr_FixToStr((float)((int32_t)(sdr.freq/100UL)
+                +sdr.afc)*0.001f, 4UL, h, 251ul);
+               aprsstr_Append(s, 251ul, h, 251ul);
+               aprsstr_Append(s, 251ul, "MHz", 4ul);
+               mhzfromsonde = 1; /* mhz sent so do not with %f */
+            }
             if (typstr[0UL]) {
                aprsstr_Append(s, 251ul, " Type=", 7ul);
-               aprsstr_Append(s, 251ul, typstr, typstr_len);
+               if (typisser(fullid, fullid_len, typstr, typstr_len)) {
+                  aprsstr_Append(s, 251ul, fullid, fullid_len);
+               }
+               else aprsstr_Append(s, 251ul, typstr, typstr_len);
             }
             if (og>=0.0 && og<=(double)sondeaprs_lowalt) {
                aprsstr_Append(s, 251ul, " OG=", 5ul);
@@ -1695,16 +1723,8 @@ extern void sondeaprs_senddata(double lat, double long0,
                aprsstr_Append(s, 251ul, h, 251ul);
                aprsstr_Append(s, 251ul, "m", 2ul);
             }
-            /* appended by SQ7BR */
-            if (burstKill==1UL || burstKill==2UL) {
-               aprsstr_Append(s, 251ul, " BK=", 5ul);
-               if (burstKill==1UL) {
-                  aprsstr_Append(s, 251ul, "Off", 4ul);
-               }
-               else aprsstr_Append(s, 251ul, "On", 3ul);
-            }
-            /* appended by SQ7BR */
-            if (fullid[0UL]) {
+            if (fullid[0UL] && !typisser(fullid, fullid_len, typstr,
+                typstr_len)) {
                aprsstr_Append(s, 251ul, " ser=", 6ul);
                aprsstr_Append(s, 251ul, fullid, fullid_len);
             }

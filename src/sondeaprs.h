@@ -30,7 +30,7 @@ struct sondeaprs_SDRBLOCK {
    char valid;
 };
 
-#define sondeaprs_VERSION "sondemod 1.34 - df7pn"
+#define sondeaprs_VERSION "sondemod 1.36 - ext DF7PN"
 
 #define sondeaprs_minusG "G"
 
@@ -47,8 +47,9 @@ extern void sondeaprs_senddata(double, double, double,
                 double, double, double, double,
                 double, uint32_t, uint32_t, char [],
                 uint32_t, uint32_t, uint32_t, char [], uint32_t,
-                uint32_t, uint32_t, char, char [], uint32_t,
-                 char [], uint32_t, struct sondeaprs_SDRBLOCK);
+                uint32_t, double, char, char [],
+                uint32_t, char [], uint32_t,
+                struct sondeaprs_SDRBLOCK);
 
 extern int32_t sondeaprs_GetIp(char [], uint32_t, uint32_t *,
                 uint32_t *, uint32_t *);
@@ -62,7 +63,7 @@ extern char sondeaprs_objname[100];
 extern char sondeaprs_commentfn[1025];
 
 extern char sondeaprs_csvfilename[1025];
-extern char sondeaprs_SQL[2];
+ extern char sondeaprs_SQL[2];
 
 extern char sondeaprs_sym[2];
 

@@ -13,7 +13,6 @@
 #include "X2C.h"
 #endif
 
-/* string lib by oe5dxl */
 typedef uint32_t aprsstr_TIME;
 
 typedef uint32_t aprsstr_IPNUM;
@@ -35,6 +34,8 @@ struct aprsstr_POSITION {
 #define aprsstr_CALLLEN 7
 
 #define aprsstr_HBIT 128
+
+extern char aprsstr_showctrl;
 
 extern void aprsstr_Assign(char [], uint32_t, char [], uint32_t);
 
