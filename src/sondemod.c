@@ -1842,7 +1842,8 @@ static void decodeframe(uint8_t m, uint32_t ip, uint32_t fromport)
       }
    }
    loop_exit:;
-   if (((((contextr9.posok && calok) && almread+60UL>systime)
+   /* ----- calok muss true sein. Für aushebeln der Doppelprüfung nicht nutzen --- */
+   if (((((contextr9.posok /* && calok */) && almread+60UL>systime)
                 && (((sendquick==2UL || sondeaprs_nofilter)
                 || contextr9.calibok==0xFFFFFFFFUL)
                 || (contextr9.calibok&0x1UL)!=0UL && sendquick==1UL))
@@ -3425,7 +3426,8 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
       wrsdr();
       osi_WrStrLn("", 1ul);
    }
-   if ((((pc && nameok) && calok) && lat!=0.0) && long0!=0.0) {
+   /* ----- calok muss true sein. Für aushebeln der Doppelprüfung nicht nutzen --- */
+   if ((((pc && nameok) /* && calok */) && lat!=0.0) && long0!=0.0) {
       sondeaprs_senddata(lat, long0, heig, speed, dir, climb, 0.0, 0.0,
                 temperature, ozonval, pc->ozonTemp, pc->ozonPumpMA,
                 pc->ozonBatVolt, (double)pc->mhz0, (-1.0), 0.0,
@@ -3701,7 +3703,8 @@ static void decodem10(const char rxb[], uint32_t rxb_len,
       wrsdr();
       osi_WrStrLn("", 1ul);
    }
-   if ((((pc && nameok) && calok) && lat!=0.0) && lon!=0.0) {
+   /* ----- calok muss true sein. Für aushebeln der Doppelprüfung nicht nutzen --- */
+   if ((((pc && nameok) /* && calok */) && lat!=0.0) && lon!=0.0) {
       sondeaprs_senddata(lat*1.7453292519943E-2, lon*1.7453292519943E-2, alt,
                  v, dir, vv, 0.0, 0.0, (double)rtok, 0.0, 0.0, 0.0,
                 0.0, (double) -(float)(uint32_t)sendmhzfromsdr,
