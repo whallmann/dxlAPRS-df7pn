@@ -3426,13 +3426,13 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
       osi_WrStrLn("", 1ul);
       osi_WrStrLn("-----> sondeaprs_senddata?", 27ul);
       osi_WrStr("pc und nameok = ",17uL);
-      if (pc && nameok) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL)};
+      if (pc && nameok) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL); };
       osi_WrStr("calok = ",9uL);
-      if (calok) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL)};
+      if (calok) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL); };
       osi_WrStr("lat!=0.0 = ",12uL);
-      if (lat!=0.0) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL)};
+      if (lat!=0.0) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL); };
       osi_WrStr("long0!=0.0 = ",14uL);
-      if (long0!=0.0) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL)};
+      if (long0!=0.0) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL); };
       osi_WrStrLn("<-----", 7ul);
       	
    }
