@@ -3295,15 +3295,15 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
          }
          else if (pc->framenum==frameno && !pc->framesent) calok = 1;
          else if (frameno<pc->framenum /* && sondeaprs_verb */ ) {
-            calok = 1; // trotzdem ok, damit in sendaprs das beim sendDB für den User nachgetragben werden kann
-			if (sondeaprs_verb) {
-				osi_WrStrLn("", 1ul);
-				osi_WrStr("got out of order frame number ", 31ul);
-				osic_WrINT32(frameno, 1UL);
-				osi_WrStr(" expecting ", 12ul);
-				osic_WrINT32(pc->framenum, 1UL);
-				osi_WrStr(" ", 2ul);
-			}
+            calok = 1; // trotzdem ok, damit in sendaprs das beim sendDB fuer den User nachgetragen werden kann
+						if (sondeaprs_verb) {
+							osi_WrStrLn("", 1ul);
+							osi_WrStr("got out of order frame number ", 31ul);
+							osic_WrINT32(frameno, 1UL);
+							osi_WrStr(" expecting ", 12ul);
+							osic_WrINT32(pc->framenum, 1UL);
+							osi_WrStr(" ", 2ul);
+						}
          }
          if (rxb[p+23UL]==0 && p<(rxb_len-1)-27UL) {
             pc->mhz0 = (float)(getcard16(rxb, rxb_len,
@@ -3424,6 +3424,17 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
    if (sondeaprs_verb) {
       wrsdr();
       osi_WrStrLn("", 1ul);
+      osi_WrStrLn("-----> sondeaprs_senddata?", 27ul);
+      osi_WrStr("pc und nameok = ",17uL);
+      if (pc && nameok) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL)};
+      osi_WrStr("calok = ",9uL);
+      if (calok) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL)};
+      osi_WrStr("lat!=0.0 = ",12uL);
+      if (lat!=0.0) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL)};
+      osi_WrStr("long0!=0.0 = ",14uL);
+      if (long0!=0.0) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL)};
+      osi_WrStrLn("<-----", 7ul);
+      	
    }
    if ((((pc && nameok) && calok) && lat!=0.0) && long0!=0.0) {
       sondeaprs_senddata(lat, long0, heig, speed, dir, climb, 0.0, 0.0,
