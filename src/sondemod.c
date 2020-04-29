@@ -3425,6 +3425,7 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
       wrsdr();
       osi_WrStrLn("", 1ul);
       osi_WrStrLn("-----> sondeaprs_senddata?", 27ul);
+/* ------------ debug --------------------
       osi_WrStr("pc und nameok = ",17uL);
       if (pc && nameok) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL); };
       osi_WrStr("calok = ",9uL);
@@ -3434,7 +3435,7 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
       osi_WrStr("long0!=0.0 = ",14uL);
       if (long0!=0.0) { osi_WrStrLn("TRUE",5uL); } else {osi_WrStrLn("FALSE",6uL); };
       osi_WrStrLn("<-----", 7ul);
-      	
+-------------------------------------------- */      	
    }
    if ((((pc && nameok) /* && calok */ ) && lat!=0.0) && long0!=0.0) {
       sondeaprs_senddata(lat, long0, heig, speed, dir, climb, 0.0, 0.0,
