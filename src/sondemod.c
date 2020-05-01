@@ -95,6 +95,9 @@ static char sondemod_EMPTYAUX = '\003';
 #define sondemod_FASTALM 4
 /* reread almanach if old */
 
+#define sondemod_MAXOLDFRAMENOBEHIND 10
+/* accept nachzuegler nur bis zu MaxOldFramenoBehind, Nummern davor werden nicht gelogged */
+
 typedef uint32_t SET51[2];
 
 typedef char FILENAME[1024];
@@ -352,6 +355,7 @@ static char sendmhzfromsdr;
 static char dfmswap;
 
 static uint16_t CRCTAB[256];
+
 
 
 static void Error(char text[], uint32_t text_len)
@@ -1739,18 +1743,23 @@ static void decodeframe(uint8_t m, uint32_t ip, uint32_t fromport)
                   osi_WrStrLn("", 1ul);
                }
             }
-            else if (contextr9.framenum==frameno && !contextr9.framesent) {
+			//--------------- framesent verhindert das gleiche Framenum´s von anderen geloggt werden
+            else if (contextr9.framenum==frameno /* && !contextr9.framesent */) {
                calok = 1;
             }
-            else if (frameno<contextr9.framenum && sondeaprs_verb) {
-               osi_WrStrLn("", 1ul);
-               osi_WrStr("got out of order frame number ", 31ul);
-               osic_WrINT32(frameno, 1UL);
-               osi_WrStr(" expecting ", 12ul);
-               osic_WrINT32(contextr9.framenum, 1UL);
-               osi_WrStr(" ", 2ul);
-               crdone = 0;
+            else if ((frameno<contextr9.framenum-sondemod_MAXOLDFRAMENOBEHIND) /* && sondeaprs_verb */) {
+				// calok = 1; // aelter als MaxOldFrames werden verworfen
+				if (sondeaprs_verb) {
+				   osi_WrStrLn("", 1ul);
+				   osi_WrStr("got out of order frame number ", 31ul);
+				   osic_WrINT32(frameno, 1UL);
+				   osi_WrStr(" expecting ", 12ul);
+				   osic_WrINT32(contextr9.framenum, 1UL);
+				   osi_WrStr(" ", 2ul);
+				   crdone = 0;
+				}
             }
+			else if (frameno<contextr9.framenum) calok = 1;  // alles zwischen aktuell-MaxOldFrameno und der aktuellen-1 sind ok
          }
          else if (typ=='i') {
             { /* with */
@@ -1842,6 +1851,7 @@ static void decodeframe(uint8_t m, uint32_t ip, uint32_t fromport)
       }
    }
    loop_exit:;
+   // -------------------- calok kann drinn bleiben, weil es oben etwas aufgelockert wurde
    if (((((contextr9.posok && calok) && almread+60UL>systime)
                 && (((sendquick==2UL || sondeaprs_nofilter)
                 || contextr9.calibok==0xFFFFFFFFUL)
@@ -3293,9 +3303,10 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
             pc->framenum = frameno;
             pc->tused = systime;
          }
-         else if (pc->framenum==frameno && !pc->framesent) calok = 1;
-         else if (frameno<pc->framenum /* && sondeaprs_verb */ ) {
-            calok = 1; // trotzdem ok, damit in sendaprs das beim sendDB fuer den User nachgetragen werden kann
+		 // ---------------- framesent verhindert doppelte gleiche Lieferungen für die Datenbank 
+         else if (pc->framenum==frameno /* && !pc->framesent */ ) calok = 1;
+         else if (frameno<(pc->framenum-sondemod_MAXOLDFRAMENOBEHIND) /* && sondeaprs_verb */ ) {
+            // calok = 1; // aelter als MaxOldFrames werden verworfen
 						if (sondeaprs_verb) {
 							osi_WrStrLn("", 1ul);
 							osi_WrStr("got out of order frame number ", 31ul);
@@ -3305,6 +3316,8 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
 							osi_WrStr(" ", 2ul);
 						}
          }
+		 else if (frameno<pc->framenum) calok = 1;  // alles zwischen aktuell-MaxOldFrameno und der aktuellen-1 sind ok
+
          if (rxb[p+23UL]==0 && p<(rxb_len-1)-27UL) {
             pc->mhz0 = (float)(getcard16(rxb, rxb_len,
                 p+26UL)/64UL+40000UL)*0.01f+0.0005f;
@@ -3437,7 +3450,8 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
       osi_WrStrLn("<-----", 7ul);
 -------------------------------------------- */      	
    }
-   if ((((pc && nameok) /* && calok */ ) && lat!=0.0) && long0!=0.0) {
+   // -------------------- calok kann drinn bleiben, weil es oben etwas aufgelockert wurde
+   if ((((pc && nameok) && calok) && lat!=0.0) && long0!=0.0) {
       sondeaprs_senddata(lat, long0, heig, speed, dir, climb, 0.0, 0.0,
                 temperature, ozonval, pc->ozonTemp, pc->ozonPumpMA,
                 pc->ozonBatVolt, (double)pc->mhz0, (-1.0), 0.0,
@@ -3625,16 +3639,23 @@ static void decodem10(const char rxb[], uint32_t rxb_len,
          pc->framenum = frameno;
          pc->tused = systime;
       }
+	  //--------------- framesent verhindert das gleiche Framenum´s von anderen geloggt werden
       else if (pc->framenum==frameno) {
-         if (!pc->framesent) calok = 1;
+         /* if (!pc->framesent) */ calok = 1;
       }
-      else if (sondeaprs_verb) {
-         osi_WrStr(" got old frame ", 16ul);
-         osic_WrINT32(frameno, 1UL);
-         osi_WrStr(" expected> ", 12ul);
-         osic_WrINT32(pc->framenum, 1UL);
-         osi_WrStr(" ", 2ul);
-      }
+	  // --------------- aelter als MaxOldFrames werden verworfen
+      else if (frameno<(pc->framenum-sondemod_MAXOLDFRAMENOBEHIND)) {
+		 if (sondeaprs_verb) {
+			 osi_WrStr(" got old frame ", 16ul);
+			 osic_WrINT32(frameno, 1UL);
+			 osi_WrStr(" expected> ", 12ul);
+			 osic_WrINT32(pc->framenum, 1UL);
+			 osi_WrStr(" ", 2ul);
+		}
+	  }
+	  // ---------------  alles zwischen aktuell-MaxOldFrameno und der aktuellen-1 sind ok
+	  else if (frameno<pc->framenum) calok = 1;
+	  
       lat = (double)m10card(rxb, rxb_len, 30L, 4L)*8.3819036711397E-8;
       lon = (double)m10card(rxb, rxb_len, 34L, 4L)*8.3819036711397E-8;
       alt = (double)m10card(rxb, rxb_len, 38L, 4L)*0.001;
@@ -3713,7 +3734,8 @@ static void decodem10(const char rxb[], uint32_t rxb_len,
       wrsdr();
       osi_WrStrLn("", 1ul);
    }
-   if ((((pc && nameok) && calok) && lat!=0.0) && lon!=0.0) {
+   // -------------------- calok kann drinn bleiben, weil es oben etwas aufgelockert wurde
+   if ((((pc && nameok) && calok ) && lat!=0.0) && lon!=0.0) {
       sondeaprs_senddata(lat*1.7453292519943E-2, lon*1.7453292519943E-2, alt,
                  v, dir, vv, 0.0, 0.0, (double)rtok, 0.0, 0.0, 0.0,
                 0.0, (double) -(float)(uint32_t)sendmhzfromsdr,
