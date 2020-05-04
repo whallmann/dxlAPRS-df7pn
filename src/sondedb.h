@@ -24,7 +24,7 @@ extern void sondedb_BEGIN(void);
 extern void senddata_db(sondeaprs_type, double, double, double, double, double,
                 double, double, double, double, double, double, double,
                 double, double, double, double, double, unsigned long,
-                unsigned long, char [], unsigned long, unsigned long,
+                unsigned long, char [], unsigned long, double,
                 unsigned long, char [], unsigned long, unsigned long, 
                 unsigned long, char*, unsigned long, unsigned char,
                 const char*, unsigned long, char*, char*, char*, char*,

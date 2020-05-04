@@ -121,7 +121,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
                 double pumpv, double dewp, double mhz, double hrms,
                 double vrms, unsigned long sattime, unsigned long uptime,
                 char objname[], unsigned long objname_len,
-                unsigned long almanachage, unsigned long goodsats,
+                double egmaltitude, unsigned long goodsats,
                 char usercall[], unsigned long usercall_len,
                 unsigned long calperc, unsigned long sd_log_freq, char* sd_type, 
                 unsigned long killTimer, unsigned char burstKill, const char* sd_raw,
@@ -141,7 +141,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     // DFM workaround
     //if(lat < 0.01 || long0 < 0.01 || lat > 1000 || long0 > 1000)
     //    return;
-    
+    //  sd_almanachage ist namentlich falsch, kann aber nicht geändert werden.  korrekt wäre sd_egmaltitude
     const char* INSERT = "INSERT INTO sondedata (sd_log_time, sd_name, sd_log_freq, sd_type, sd_lat, sd_long, sd_alt, sd_speed, sd_dir, sd_clb, "
             "sd_press, sd_hyg, sd_temp, sd_ozone_val, sd_ozone_temp, sd_ozone_pump_curr, sd_ozone_pump_volt, sd_dewp, sd_freq, "
             "sd_hrms, sd_vrms, sd_sat_time, sd_uptime, sd_almanachage, sd_goodsats, sd_cal_perc, sd_kill_timer, sd_burstkill, sd_user, sd_raw, " 
@@ -170,6 +170,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     char sd_vrms[MEAS_LEN];
     char sd_bat_voltage[MEAS_LEN];
     char sd_temp_int[MEAS_LEN];
+    char sd_almanachage[MEAS_LEN];  // ist in wirklichkeit die egmaltitude (hoehe über NN)
     
     // Ints
     char sd_heating[MEAS_LEN];
@@ -187,7 +188,6 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     // Time
     char sd_sat_time[MEAS_LEN];
     char sd_uptime[MEAS_LEN];
-    char sd_almanachage[MEAS_LEN];
     char sd_kill_timer[MEAS_LEN];
     
     // Create Name
@@ -222,6 +222,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     make_number_or_null_d(sd_temp, MEAS_LEN, temp, (double)X2C_max_real);
     make_number_or_null_d(sd_bat_voltage, MEAS_LEN, voltage, 0.0);
     make_number_or_null_d(sd_temp_int, MEAS_LEN, tempInt, 0.0);
+    make_number_or_null_d(sd_almanachage, MEAS_LEN, egmaltitude, 0.0);
     
     make_number_or_null_i(sd_heating, MEAS_LEN, heating, 0);
     make_number_or_null_i(sd_power, MEAS_LEN, power, 0);
@@ -265,7 +266,6 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     
     make_number_or_null_t(sd_sat_time, MEAS_LEN, sattime, 86401);
     make_number_or_null_t(sd_uptime, MEAS_LEN, uptime, 86401);
-    make_number_or_null_t(sd_almanachage, MEAS_LEN, almanachage, 86401);
     make_number_or_null_t(sd_kill_timer, MEAS_LEN, killTimer==0xFFFF ? 0 : killTimer, 0);
     
     if(sondedb_csv && type == type_send_pos)
@@ -273,7 +273,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
         if(!sondedb_csv_header_printed)
         {
             printf("Log_Time;Name;Log_Freq;Type;Lat;Long;Alt;Speed;Dir;Clb;Press;Hyg;Temp;Ozone_Val;Ozone_Temp;Ozone_Pump_Curr;Ozone_Pump_Volt;Dewp;"
-            "Freq;Hrms;Vrms;Sat_Time;Uptime;Almanachage;Goodsats;Cal_Perc;Kill_Timer;Burstkill;User;Hw_Type;Hw_Rev;Hw_SN;Pres_SN;Fw_Version;Bat_Voltage;Int_Temp;Flight_State;Heating;Power;Error\n");
+            "Freq;Hrms;Vrms;Sat_Time;Uptime;EGMaltitude;Goodsats;Cal_Perc;Kill_Timer;Burstkill;User;Hw_Type;Hw_Rev;Hw_SN;Pres_SN;Fw_Version;Bat_Voltage;Int_Temp;Flight_State;Heating;Power;Error\n");
             sondedb_csv_header_printed = 1;
         }
         time_t t = time(NULL);
