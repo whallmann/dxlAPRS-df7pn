@@ -1537,9 +1537,9 @@ extern void sondeaprs_senddata(double lat, double long0,
 	{
 		printf("#<3> wrSQL\n");
 	}
-   	/* ##HIER##  burstKill gibts nicht mehr */
+   	/* ##HIER##  egmalt wird ersetzt gegen btalt. Dafuer ist ab mit -S der Pfad zu SRTM Daten noetig. Sonst ist btalt = alt */
       wrSQL(sattime, typstr, typstr_len, objname, objname_len, lat, long0,
-                alt, speed, dir, clb, egmalt, og, mhz, goodsats, 0,
+                alt, speed, dir, clb, btalt, og, mhz, goodsats, 0,
                 uptime, hp, hyg, temp, ozon, otemp, pumpmA, pumpv, sdr,
                 mydist, myazi, myele, fullid, fullid_len, hrms, vrms,  
                 usercall, usercall_len, calperc, sdr.freq     );

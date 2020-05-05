@@ -666,7 +666,7 @@ static void Parms(void)
          else if (h[1U]=='J') dfmswap = 1;
          else {
             if (h[1U]=='h') {
-               osi_WrStr("sondemod 1.36 - ext DF7PN", 26ul);
+               osi_WrStr("sondemod 1.36 - extended DF7PN", 26ul);
                osi_WrStrLn(" multichannel decoder RS92, RS41, SRS-C34/50, DFM\
 , M10 Radiosondes", 67ul);
                osi_WrStrLn(" -A <meter>     at lower altitude use -B beacon t\
