@@ -41,6 +41,7 @@ struct sondeaprs_SDRBLOCK {
 enum send_type { type_send_pos, type_send_raw_only, type_send_duplicate };
 typedef enum send_type sondeaprs_type; 
 
+//---- erweitert um IP Adresse als uint32_t
 extern void sondeaprs_senddata(double, double, double,
                 double, double, double, double,
                 double, double, double, double,
@@ -49,7 +50,8 @@ extern void sondeaprs_senddata(double, double, double,
                 uint32_t, uint32_t, uint32_t, char [], uint32_t,
                 uint32_t, double, char, char [],
                 uint32_t, char [], uint32_t,
-                struct sondeaprs_SDRBLOCK);
+                struct sondeaprs_SDRBLOCK,
+				uint32_t ip);
 
 extern int32_t sondeaprs_GetIp(char [], uint32_t, uint32_t *,
                 uint32_t *, uint32_t *);

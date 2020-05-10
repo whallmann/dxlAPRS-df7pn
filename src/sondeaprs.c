@@ -386,7 +386,7 @@ v,dist,azimuth,elevation,ser\012",1000u);
 } /* end wrcsv() */
 
 
-
+//---- erweitert um IP Adresse
 static void wrSQL(uint32_t sattime, const char typstr[],
                 uint32_t typstr_len, char objname[],
                 uint32_t objname_len, double lat, double long0,
@@ -403,7 +403,8 @@ static void wrSQL(uint32_t sattime, const char typstr[],
                 char usercall[],
                 uint32_t usercall_len,
                 uint32_t calperc,
-                uint32_t sd_log_freq
+                uint32_t sd_log_freq,
+				uint32_t ip
                 )
 {
    int32_t fd;
@@ -421,7 +422,7 @@ static void wrSQL(uint32_t sattime, const char typstr[],
                 objname, objname_len, almanachage, goodsats, usercall,
                 usercall_len, calperc, sd_log_freq, sd_type, killTimer,
                 burstKill, sd_raw, sd_raw_len, hwType, hwRev, hwSN, presSN,
-                fwVersion, voltage, tempInt, flightState, heating, power, error); 
+                fwVersion, voltage, tempInt, flightState, heating, power, error, ip); 
    */
    //strncpy(s,typstr,typstr_len);
    sd_log_freq = sd_log_freq * 10UL;	
@@ -431,7 +432,7 @@ static void wrSQL(uint32_t sattime, const char typstr[],
                 objname, objname_len, egmalt, goodsats, usercall,
                 usercall_len, calperc, sd_log_freq, typstr, 0UL,
                 burstKill, "", 1ul, "", "", "", "",
-                "", 0.0, 0.0, "", (unsigned char)0, (unsigned char)0, "");
+                "", 0.0, 0.0, "", (unsigned char)0, (unsigned char)0, "", ip);
    /* */
 
    
@@ -1434,7 +1435,7 @@ static char typisser(const char fullid[], uint32_t fullid_len,
    return 0;
 } /* end typisser() */
 
-
+//---- erweitert um IP Adresse
 extern void sondeaprs_senddata(double lat, double long0,
                 double alt, double speed, double dir,
                 double clb, double fakehp, double hyg,
@@ -1447,7 +1448,8 @@ extern void sondeaprs_senddata(double lat, double long0,
                 uint32_t usercall_len, uint32_t calperc, double hp,
                  char force, char typstr[], uint32_t typstr_len,
                  char fullid[], uint32_t fullid_len,
-                struct sondeaprs_SDRBLOCK sdr)
+                struct sondeaprs_SDRBLOCK sdr,
+				uint32_t ip)
 {
    uint8_t e;
    pCONTEXT ct;
@@ -1539,12 +1541,13 @@ extern void sondeaprs_senddata(double lat, double long0,
 	{
 		printf("#<3> wrSQL\n");
 	}
-   	/* ##HIER##  egmalt wird ersetzt gegen btalt. Dafuer ist ab mit -S der Pfad zu SRTM Daten noetig. Sonst ist btalt = alt */
+   	/* egmalt wird ersetzt gegen btalt. Dafuer ist ab mit -S der Pfad zu SRTM Daten noetig. Sonst ist btalt = alt */
+	// erweitert um IP Adresse
       wrSQL(sattime, typstr, typstr_len, objname, objname_len, lat, long0,
                 alt, speed, dir, clb, btalt, og, mhz, goodsats, 0,
                 uptime, hp, hyg, temp, ozon, otemp, pumpmA, pumpv, sdr,
                 mydist, myazi, myele, fullid, fullid_len, hrms, vrms,  
-                usercall, usercall_len, calperc, sdr.freq     );
+                usercall, usercall_len, calperc, sdr.freq, ip     );
    }
 
    if (aprsstr_Length(usercall, usercall_len)<3UL) {

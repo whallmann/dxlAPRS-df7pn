@@ -1864,6 +1864,7 @@ static void decodeframe(uint8_t m, uint32_t ip, uint32_t fromport)
             anonym1->hyg = 0.0;
             anonym1->temp = (double)X2C_max_real;
          }
+		 //--- erweitert um IP Adresse
          sondeaprs_senddata(anonym1->lat, anonym1->long0, anonym1->heig,
                 anonym1->speed, anonym1->dir, anonym1->climb, 0.0,
                 anonym1->hyg, anonym1->temp, anonym1->ozon,
@@ -1872,7 +1873,7 @@ static void decodeframe(uint8_t m, uint32_t ip, uint32_t fromport)
                 gpstime-18UL, frameno, objname, 9ul, almanachage,
                 anonym1->goodsats, usercall, 11ul, calperc(anonym1->calibok),
                  anonym1->hp, sondeaprs_nofilter, "RS92", 5ul, "", 1ul,
-                sdrblock);
+                sdrblock, ip);
          anonym1->framesent = 1;
       }
       crdone = 1;
@@ -2372,12 +2373,13 @@ static void decodec34(const char rxb[], uint32_t rxb_len,
          if (lonok && latok) {
             if (c50) strncpy(tstr,"SRSC50",51u);
             else strncpy(tstr,"SRSC34",51u);
+			//--- erweitert um IP Adresse
             sondeaprs_senddata(exlat, exlon, anonym2->alt, anonym2->speed,
                 anonym2->dir, anonym2->clmb, 0.0, 0.0, stemp, 0.0, 0.0, 0.0,
                 0.0, (double) -(float)(uint32_t)sendmhzfromsdr,
                 0.0, 0.0, ((systime-anonym2->tgpstime)+anonym2->gpstime)%86400UL+anonym2->gpsdate,
                  0UL, anonym2->name, 9ul, 0UL, 0UL, usercall, 11ul, 0UL, 0.0,
-                 sondeaprs_nofilter, tstr, 51ul, "", 1ul, sdrblock);
+                 sondeaprs_nofilter, tstr, 51ul, "", 1ul, sdrblock, ip);
             anonym2->lastsent = systime;
          }
       }
@@ -2849,13 +2851,14 @@ static void decodedfm6(const char rxb[], uint32_t rxb_len,
                osi_WrStrLn(")", 2ul);
             }
             if ((lonok && latok) && (pc->poserr==0UL || sondeaprs_nofilter)) {
-               sondeaprs_senddata(exlat, exlon, anonym->alt, anonym->speed,
+               //---- erweitert um IP Adresse
+			   sondeaprs_senddata(exlat, exlon, anonym->alt, anonym->speed,
                 anonym->dir, anonym->clmb, 0.0, 0.0,
                 (double)X2C_max_real, 0.0, 0.0, 0.0, 0.0,
                 (double) -(float)(uint32_t)sendmhzfromsdr, 0.0,
                 0.0, anonym->actrt, 0UL, anonym->name, 9ul, 0UL, 0UL,
                 usercall, 11ul, 0UL, 0.0, sondeaprs_nofilter, typstr, 9ul,
-                ser, 16ul, sdrblock);
+                ser, 16ul, sdrblock, ip);
                anonym->lastsent = systime;
             }
          }
@@ -3457,7 +3460,7 @@ static void decoders41(const char rxb[], uint32_t rxb_len,
                 pc->ozonBatVolt, (double)pc->mhz0, (-1.0), 0.0,
                 pc->gpssecond, frameno, pc->name, 9ul, 0UL, sats, usercall,
                 11ul, 0UL, 0.0, sondeaprs_nofilter, "RS41", 5ul, fullid,
-                12ul, sdrblock);
+                12ul, sdrblock, ip);
       pc->framesent = 1;
    }
 } /* end decoders41() */
@@ -3736,12 +3739,13 @@ static void decodem10(const char rxb[], uint32_t rxb_len,
    }
    // -------------------- calok kann drinn bleiben, weil es oben etwas aufgelockert wurde
    if ((((pc && nameok) && calok ) && lat!=0.0) && lon!=0.0) {
+	  //---- erweitert um IP Adresse
       sondeaprs_senddata(lat*1.7453292519943E-2, lon*1.7453292519943E-2, alt,
                  v, dir, vv, 0.0, 0.0, (double)rtok, 0.0, 0.0, 0.0,
                 0.0, (double) -(float)(uint32_t)sendmhzfromsdr,
                 0.0, 0.0, pc->gpssecond, 0UL, pc->name, 9ul, 0UL, 0UL,
                 usercall, 11ul, 0UL, 0.0, sondeaprs_nofilter, "M10", 4ul,
-                fullid, 12ul, sdrblock);
+                fullid, 12ul, sdrblock, ip);
       pc->framesent = 1;
    }
 } /* end decodem10() */

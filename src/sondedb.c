@@ -70,6 +70,20 @@ void make_number_or_null_i(char* buffer, unsigned int buffer_len, unsigned char 
     }
 }
 
+void make_number_or_null_ul(char* buffer, unsigned int buffer_len, unsigned long data, unsigned char nullIfValue)
+{
+    if(data!=nullIfValue)
+        sprintf(buffer, "%d", data);
+    else
+    {
+        if(sondedb_csv)
+            buffer[0] = 0;
+        else
+            strcpy(buffer, S_NULL);
+    }
+}
+
+
 void make_string_or_null(char* buffer, unsigned int buffer_len, char* data)
 {
     if(data != (void*)0)
@@ -114,7 +128,7 @@ void make_number_or_null_t(char* buffer, unsigned int buffer_len, unsigned long 
             strcpy(buffer, S_NULL);
     }
 }
-
+//---- erweitert um IP Adresse (uint32_t)
 extern void senddata_db(sondeaprs_type type, double lat, double long0, double alt,
                 double speed, double dir, double clb, double hp, double hyg,
                 double temp, double ozon, double otemp, double pumpmA,
@@ -127,7 +141,7 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
                 unsigned long killTimer, unsigned char burstKill, const char* sd_raw,
         unsigned long sd_raw_len, char* hwType, char* hwRev, char* hwSN, 
         char* presSN, char* fwVersion, double voltage, double tempInt, 
-        char* flightState, unsigned char heating, unsigned char power, char* error)
+        char* flightState, unsigned char heating, unsigned char power, char* error, unsigned long ip)
 {
 	
 	if(sondeaprs_verb)
@@ -142,10 +156,11 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     //if(lat < 0.01 || long0 < 0.01 || lat > 1000 || long0 > 1000)
     //    return;
     //  sd_almanachage ist namentlich falsch, kann aber nicht geändert werden.  korrekt wäre sd_egmaltitude
+	//  erweitert up IP Adresse (am Ende)
     const char* INSERT = "INSERT INTO sondedata (sd_log_time, sd_name, sd_log_freq, sd_type, sd_lat, sd_long, sd_alt, sd_speed, sd_dir, sd_clb, "
             "sd_press, sd_hyg, sd_temp, sd_ozone_val, sd_ozone_temp, sd_ozone_pump_curr, sd_ozone_pump_volt, sd_dewp, sd_freq, "
             "sd_hrms, sd_vrms, sd_sat_time, sd_uptime, sd_almanachage, sd_goodsats, sd_cal_perc, sd_kill_timer, sd_burstkill, sd_user, sd_raw, " 
-            "sd_hw_type, sd_hw_rev, sd_hw_sn, sd_pres_sn, sd_fw_version, sd_bat_voltage, sd_temp_int, sd_flight_state, sd_heating, sd_power, sd_error) VALUES";
+            "sd_hw_type, sd_hw_rev, sd_hw_sn, sd_pres_sn, sd_fw_version, sd_bat_voltage, sd_temp_int, sd_flight_state, sd_heating, sd_power, sd_error, sd_ip) VALUES";
 
     char sd_name[objname_len+1];
     char sd_user[usercall_len+4];
@@ -189,6 +204,9 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     char sd_sat_time[MEAS_LEN];
     char sd_uptime[MEAS_LEN];
     char sd_kill_timer[MEAS_LEN];
+	
+	// LongInt
+	char sd_ip[MEAS_LEN];
     
     // Create Name
     memcpy(sd_name, objname, objname_len);
@@ -225,8 +243,9 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     make_number_or_null_d(sd_almanachage, MEAS_LEN, egmaltitude, 0.0);
     
     make_number_or_null_i(sd_heating, MEAS_LEN, heating, 0);
-    make_number_or_null_i(sd_power, MEAS_LEN, power, 0);
-    
+	make_number_or_null_i(sd_power, MEAS_LEN, power, 0);
+	make_number_or_null_ul(sd_ip, MEAS_LEN, ip, 0);
+
     make_string_or_null(sd_hw_type, STR_LEN, hwType);
     make_string_or_null(sd_hw_rev, STR_LEN, hwRev);
     make_string_or_null(sd_hw_sn, STR_LEN, hwSN);
@@ -355,11 +374,11 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
                 {
 					if( sd_log_freq < 100000000) sd_log_freq = sd_log_freq * 10; 
 					
-                    sprintf(buffer, "%s (NOW(), '%s', %lu, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %d, %s, %d, %s, 0x%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    sprintf(buffer, "%s (NOW(), '%s', %lu, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %d, %s, %d, %s, 0x%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                         INSERT, sd_name, sd_log_freq, sd_type, sd_lat, sd_lon, sd_alt, sd_speed, sd_dir, sd_clb, sd_press, sd_hyg, sd_temp,
                         sd_ozone_val, sd_ozone_temp, sd_ozone_pump_curr, sd_ozone_pump_volt, sd_dewp, sd_freq, sd_hrms, sd_vrms,
                         sd_sat_time, sd_uptime, sd_almanachage, goodsats, calperc, sd_kill_timer, burstKill, sd_user, rawData, sd_hw_type,
-                        sd_hw_rev, sd_hw_sn, sd_pres_sn, sd_fw_version, sd_bat_voltage, sd_temp_int, sd_flight_state, sd_heating, sd_power, sd_error);
+                        sd_hw_rev, sd_hw_sn, sd_pres_sn, sd_fw_version, sd_bat_voltage, sd_temp_int, sd_flight_state, sd_heating, sd_power, sd_error, sd_ip);
                 }
                 else
                 {

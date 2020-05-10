@@ -20,7 +20,7 @@ extern char sondedb_mysql_db[100];
 extern char sondedb_mysql_server[100];
 
 extern void sondedb_BEGIN(void);
-
+// --- erweitert um IP Adresse (uint32_t) als unsigned long
 extern void senddata_db(sondeaprs_type, double, double, double, double, double,
                 double, double, double, double, double, double, double,
                 double, double, double, double, double, unsigned long,
@@ -29,6 +29,6 @@ extern void senddata_db(sondeaprs_type, double, double, double, double, double,
                 unsigned long, char*, unsigned long, unsigned char,
                 const char*, unsigned long, char*, char*, char*, char*,
 		char*, double, double, char*, unsigned char,
-		unsigned char, char*);
+		unsigned char, char*, unsigned long);
 
 #endif /* sondedb_H_ */
