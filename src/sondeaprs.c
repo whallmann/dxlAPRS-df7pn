@@ -1473,9 +1473,9 @@ extern void sondeaprs_senddata(double lat, double long0,
       egmalt = egm96corr(lat, long0, alt);
                 /* make NN out of wgs84 altitude */
       if (egmalt>(-1000.0)) {
-//         mit egmalt als input kommen wir bei srtm daten 50 mtr zu hoch raus. 
-//         og = getoverground(lat, long0, egmalt);
-         og = getoverground(lat, long0, alt);
+//         mit egmalt als input kommen wir bei srtm daten 50 mtr zu hoch raus?? 
+         og = getoverground(lat, long0, egmalt);
+//         og = getoverground(lat, long0, alt);
          if (og>=0.0) btalt = og;
       }
       else if (fabs(egmalt-alt)>250.0) {
