@@ -156,10 +156,11 @@ extern void senddata_db(sondeaprs_type type, double lat, double long0, double al
     //if(lat < 0.01 || long0 < 0.01 || lat > 1000 || long0 > 1000)
     //    return;
     //  sd_almanachage ist namentlich falsch, kann aber nicht geändert werden.  korrekt wäre sd_egmaltitude
+	//  Jan meint Sept.2020: .. ändere sd_almanachage nach sd_egmaltitude: DONE im INSERT String geändert
 	//  erweitert up IP Adresse (am Ende)
     const char* INSERT = "INSERT INTO sondedata (sd_log_time, sd_name, sd_log_freq, sd_type, sd_lat, sd_long, sd_alt, sd_speed, sd_dir, sd_clb, "
             "sd_press, sd_hyg, sd_temp, sd_ozone_val, sd_ozone_temp, sd_ozone_pump_curr, sd_ozone_pump_volt, sd_dewp, sd_freq, "
-            "sd_hrms, sd_vrms, sd_sat_time, sd_uptime, sd_almanachage, sd_goodsats, sd_cal_perc, sd_kill_timer, sd_burstkill, sd_user, sd_raw, " 
+            "sd_hrms, sd_vrms, sd_sat_time, sd_uptime, sd_egmaltitude, sd_goodsats, sd_cal_perc, sd_kill_timer, sd_burstkill, sd_user, sd_raw, " 
             "sd_hw_type, sd_hw_rev, sd_hw_sn, sd_pres_sn, sd_fw_version, sd_bat_voltage, sd_temp_int, sd_flight_state, sd_heating, sd_power, sd_error, sd_ip) VALUES";
 
     char sd_name[objname_len+1];
