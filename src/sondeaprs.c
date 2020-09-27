@@ -35,6 +35,7 @@
 #endif
 
 
+
 char sondeaprs_via[100];
 char sondeaprs_destcall[100];
 char sondeaprs_objname[100];
@@ -1471,6 +1472,7 @@ extern void sondeaprs_senddata(double lat, double long0,
    btalt = alt;
    if (!egmoff) {
       egmalt = egm96corr(lat, long0, alt);
+	  printf(">> Alt: %8.3f  egmalt: %8.3f  Diff: %8f \n", alt, egmalt, fabs(egmalt-alt));
                 /* make NN out of wgs84 altitude */
       if (egmalt>(-1000.0)) {
 //         mit egmalt als input kommen wir bei srtm daten 50 mtr zu hoch raus?? 
