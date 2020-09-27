@@ -1477,7 +1477,7 @@ extern void sondeaprs_senddata(double lat, double long0,
       if (egmalt>(-1000.0)) {
 //         mit egmalt als input kommen wir bei srtm daten 50 mtr zu hoch raus?? 
          og = getoverground(lat, long0, egmalt);
-//         og = getoverground(lat, long0, alt);
+	     printf(">> Over Ground Alt: %8f  \n", og);
          if (og>=0.0) btalt = og;
       }
       else if (fabs(egmalt-alt)>250.0) {
